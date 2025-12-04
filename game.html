@@ -282,12 +282,12 @@
         <button id="start-btn" class="start-btn">开始游戏</button>
         
         <div class="progress-container" id="progress-container">
-            <!-- 20个进度格子将由JS动态生成 -->
+            
         </div>
         
         <div class="game-area" id="game-area">
             <div id="number-display"></div>
-            <input type="text" id="answer-input" placeholder="输入数字（例如：123）" maxlength="20" style="display: none;">
+            <input type="number" id="answer-input" placeholder="输入数字（例如：123）" maxlength="20" oninput="this.value=this.value.replace(/[^0-9]/g,'')" style="display: none;">
             <button id="submit-btn" style="display: none;">提交答案</button>
         </div>
         
@@ -295,6 +295,7 @@
             <h2>游戏结束！</h2>
             <p id="total-score">总分：0</p>
             <div class="score-remark" id="score-remark"></div>
+            <button id="restart-btn" class="start-btn" style="margin-top:20px;">重新挑战</button>
         </div>
     </div>
 
@@ -317,6 +318,7 @@
         const progressBar = document.getElementById('progress-container');
         const totalScoreEl = document.getElementById('total-score');
         const scoreRemarkEl = document.getElementById('score-remark');
+        const restartBtn = document.getElementById('restart-btn');
 
         // 初始化进度条
         function initProgress() {
@@ -344,15 +346,16 @@
             answerInput.style.display = 'none';
             submitBtn.style.display = 'none';
             numberDisplay.style.opacity = '1';
+            answerInput.value = ''; // 清空上一关输入内容
             
-            // 启动5秒倒计时
+            // 启动5秒倒计时（优化：显示数字+剩余时间）
             let timeLeft = 5;
-            numberDisplay.textContent = `显示中... ${timeLeft}s`;
+            numberDisplay.textContent = `${gameState.correctNumber} （${timeLeft}s后隐藏）`;
             
             gameState.timer = setInterval(() => {
                 timeLeft--;
                 if (timeLeft > 0) {
-                    numberDisplay.textContent = `显示中... ${timeLeft}s`;
+                    numberDisplay.textContent = `${gameState.correctNumber} （${timeLeft}s后隐藏）`;
                 } else {
                     clearInterval(gameState.timer);
                     hideNumber();
@@ -441,6 +444,14 @@
             showNumber();
         }
 
+        // 重新开始游戏
+        function restartGame() {
+            gameEnd.style.display = 'none';
+            startBtn.style.display = 'block';
+            gameState.gameStarted = false;
+            clearInterval(gameState.timer);
+        }
+
         // 事件监听
         startBtn.addEventListener('click', startGame);
         submitBtn.addEventListener('click', checkAnswer);
@@ -449,6 +460,7 @@
                 checkAnswer();
             }
         });
+        restartBtn.addEventListener('click', restartGame);
 
         // 初始化
         initProgress();
