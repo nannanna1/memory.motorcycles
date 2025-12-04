@@ -1,469 +1,621 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>记忆力挑战</title>
+    <title>Memory Motorcycles - Train Your Memory</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
-            height: 100vh;
-            width: 100vw;
-            background: linear-gradient(135deg, #1a3a6c, #2c5282);
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
-            color: white;
-            overflow: hidden;
             padding: 20px;
-            position: relative;
+            overflow: hidden;
         }
 
-        /* 全屏适配效果 */
-        body::before {
-            content: "";
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" opacity="0.1"><rect width="100" height="100" fill="white"/></svg>');
-            background-size: 50px 50px;
-            z-index: -2;
-        }
-
-        .game-container {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            padding: 30px;
+        .container {
             width: 100%;
             max-width: 800px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            text-align: center;
-            position: relative;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
         }
 
-        h1 {
-            font-size: 2.8rem;
-            margin-bottom: 15px;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-            color: #4a90e2;
-            letter-spacing: 1px;
-        }
-
-        .rules {
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 30px;
-            line-height: 1.6;
-            font-size: 1.1rem;
-            color: #e0e0ff;
-        }
-
-        .rules p {
-            margin-bottom: 12px;
-        }
-
-        .rules strong {
-            color: #4a90e2;
-        }
-
-        .start-btn {
-            background: linear-gradient(to bottom, #4a90e2, #2a75bb);
-            color: white;
-            border: none;
-            padding: 16px 40px;
-            font-size: 1.2rem;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: bold;
-            letter-spacing: 1px;
-            box-shadow: 0 5px 15px rgba(74, 144, 226, 0.4);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .start-btn:after {
-            content: "";
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.2), transparent);
-            transform: rotate(30deg);
-            z-index: -1;
-            transition: transform 0.5s;
-        }
-
-        .start-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(74, 144, 226, 0.6);
-        }
-
-        .start-btn:active {
-            transform: translateY(0);
-            background: linear-gradient(to bottom, #3a7bc8, #1a65a8);
-        }
-
-        .progress-container {
-            margin: 25px 0;
+        /* Status Bar Styles */
+        .status-bar {
             display: flex;
             justify-content: center;
             gap: 8px;
+            margin: 20px 0;
             flex-wrap: wrap;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 50px;
+            max-width: 90%;
+            align-self: center;
         }
 
-        .progress-cell {
+        .level-indicator {
             width: 24px;
             height: 24px;
-            border-radius: 6px;
-            background-color: #555;
-            transition: all 0.4s ease;
-            opacity: 0.7;
+            border-radius: 50%;
+            background-color: #444;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 12px;
+            transition: all 0.3s ease;
         }
 
-        .progress-cell.correct {
-            background-color: #4caf50;
-            opacity: 1;
+        .level-indicator.current {
+            background-color: #FFD700;
+            transform: scale(1.15);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.7);
         }
 
-        .progress-cell.wrong {
-            background-color: #f44336;
-            opacity: 1;
+        .level-indicator.correct {
+            background-color: #00C853;
+            color: white;
         }
 
-        .game-area {
-            margin: 30px 0;
+        .level-indicator.wrong {
+            background-color: #FF5252;
+            color: white;
+        }
+
+        /* Game Screens */
+        .screen {
+            display: none;
+            flex: 1;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 20px;
+            margin-top: 10px;
+            height: 100%;
+        }
+
+        .active {
+            display: flex;
+        }
+
+        /* Start Screen */
+        #start-screen {
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 100%);
+        }
+
+        #start-screen h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(156, 39, 176, 0.7);
+            background: linear-gradient(to right, #ff00cc, #333399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .game-rules {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            max-width: 600px;
+            align-self: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .game-rules h2 {
+            color: #FFD700;
+            margin-bottom: 15px;
+            font-size: 2rem;
+        }
+
+        .game-rules ul {
+            text-align: left;
+            padding-left: 20px;
+        }
+
+        .game-rules li {
+            margin: 15px 0;
+            font-size: 1.1rem;
+            line-height: 1.5;
+        }
+
+        .btn {
+            background: linear-gradient(to right, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.3rem;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(37, 117, 252, 0.4);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(37, 117, 252, 0.6);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        /* Game Screen */
+        #game-screen {
+            background: linear-gradient(135deg, #0c2461 0%, #1e3c72 100%);
+        }
+
+        .game-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 600px;
         }
 
         #number-display {
+            font-size: 4.5rem;
+            font-weight: bold;
+            margin: 30px 0;
+            letter-spacing: 8px;
+            color: #FFD700;
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+            min-height: 80px;
+        }
+
+        #timer {
             font-size: 3.5rem;
             font-weight: bold;
+            color: #ff4757;
             margin: 20px 0;
-            color: #4a90e2;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-            letter-spacing: 5px;
-            min-height: 120px;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
             display: flex;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.3);
+            border: 3px solid #ff4757;
+            animation: pulse 1s infinite;
         }
 
-        #answer-input {
-            padding: 12px 20px;
-            font-size: 1.4rem;
-            width: 100%;
-            max-width: 350px;
-            border: 2px solid #4a90e2;
-            border-radius: 10px;
-            text-align: center;
-            margin-bottom: 15px;
-            color: #2c3e50;
-            font-weight: bold;
-            transition: all 0.3s;
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(255, 71, 87, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 71, 87, 0); }
         }
 
-        #answer-input:focus {
-            outline: none;
-            border-color: #2a75bb;
-            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.3);
-        }
-
-        #submit-btn {
-            background: linear-gradient(to bottom, #4a90e2, #2a75bb);
-            color: white;
-            border: none;
-            padding: 14px 35px;
-            font-size: 1.1rem;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: bold;
-            box-shadow: 0 5px 15px rgba(74, 144, 226, 0.4);
-        }
-
-        #submit-btn:active {
-            transform: scale(0.95);
-            background: linear-gradient(to bottom, #3a7bc8, #1a65a8);
-        }
-
-        #game-end {
+        .input-phase {
             display: none;
-            margin-top: 40px;
+            width: 100%;
+            max-width: 500px;
         }
 
-        #game-end h2 {
-            font-size: 2.2rem;
-            margin-bottom: 15px;
-            color: #4a90e2;
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
         }
 
-        #total-score {
-            font-size: 2.5rem;
-            font-weight: bold;
-            margin: 15px 0;
-            color: #e0e0ff;
-        }
-
-        .score-remark {
-            font-size: 1.8rem;
-            font-weight: bold;
-            margin: 20px 0;
+        #user-input {
             padding: 15px;
-            border-radius: 15px;
-            background: rgba(255, 255, 255, 0.15);
-        }
-
-        .remark-good {
-            color: #4caf50;
-            background: rgba(74, 144, 226, 0.1);
-        }
-
-        .remark-excellent {
-            color: #4caf50;
-            background: rgba(74, 144, 226, 0.1);
-        }
-
-        .remark-poor {
-            color: #f44336;
-            background: rgba(255, 100, 100, 0.1);
-        }
-
-        .timer {
             font-size: 1.5rem;
-            color: #4a90e2;
-            margin-top: 10px;
-            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            text-align: center;
+            letter-spacing: 3px;
         }
 
-        /* 响应式设计 */
-        @media (max-width: 600px) {
-            h1 {
-                font-size: 2.2rem;
+        #user-input:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(37, 117, 252, 0.5);
+        }
+
+        .level-info {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            color: #FFD700;
+        }
+
+        /* End Screen */
+        #end-screen {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        }
+
+        #score-display {
+            font-size: 5rem;
+            font-weight: bold;
+            margin: 30px 0;
+            color: #FFD700;
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+        }
+
+        #result-message {
+            font-size: 2.5rem;
+            margin: 20px 0;
+            color: #00C853;
+            min-height: 80px;
+        }
+
+        .score-breakdown {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .score-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .score-row:last-child {
+            border-bottom: none;
+        }
+
+        .score-label {
+            color: #aaa;
+        }
+
+        .score-value {
+            font-weight: bold;
+            color: #FFD700;
+        }
+
+        .excellent-badge {
+            background: linear-gradient(45deg, #ff00cc, #333399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(255, 0, 204, 0.3);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            #start-screen h1 {
+                font-size: 2.5rem;
             }
             
-            .rules {
+            .game-rules {
+                padding: 15px;
+            }
+            
+            .game-rules li {
                 font-size: 1rem;
             }
             
             #number-display {
-                font-size: 2.5rem;
+                font-size: 3rem;
+                letter-spacing: 5px;
             }
             
-            #answer-input {
-                font-size: 1.2rem;
-                padding: 10px 15px;
+            #timer {
+                font-size: 2.5rem;
+                width: 70px;
+                height: 70px;
+            }
+            
+            #score-display {
+                font-size: 3.5rem;
+            }
+            
+            #result-message {
+                font-size: 1.8rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #start-screen h1 {
+                font-size: 2rem;
+            }
+            
+            .game-rules ul {
+                padding-left: 15px;
+            }
+            
+            .game-rules li {
+                font-size: 0.9rem;
+            }
+            
+            #number-display {
+                font-size: 2.2rem;
+                letter-spacing: 3px;
+            }
+            
+            #timer {
+                font-size: 2rem;
+                width: 60px;
+                height: 60px;
+            }
+            
+            .btn {
+                padding: 12px 30px;
+                font-size: 1.1rem;
             }
         }
     </style>
 </head>
 <body>
-    <div class="game-container">
-        <h1>记忆力挑战</h1>
-        
-        <div class="rules">
-            <p>游戏规则：<strong>每关显示一组数字，限时5秒</strong>。数字位数从1位到20位递增。</p>
-            <p>5秒后输入数字，答对得相应分数：<strong>第1关5分，第2关10分，...，第20关100分</strong>。</p>
-            <p>总分1050分，840分及以上标注“优秀”，630-839分“良好”，低于630分“继续努力”。</p>
+    <div class="container">
+        <!-- Status Bar (20 level indicators) -->
+        <div class="status-bar" id="status-bar">
+            <!-- Will be populated by JavaScript -->
         </div>
         
-        <button id="start-btn" class="start-btn">开始游戏</button>
+        <!-- Start Screen -->
+        <div id="start-screen" class="screen active">
+            <h1>Memory Motorcycles</h1>
+            <div class="game-rules">
+                <h2>Game Rules</h2>
+                <ul>
+                    <li>Test your memory with 20 levels of increasing difficulty</li>
+                    <li>Each level shows a number for exactly 5 seconds - memorize it!</li>
+                    <li>After the timer ends, enter the number you remember</li>
+                    <li>Level 1: 1-digit number, Level 2: 2-digit number, up to Level 20: 20-digit number</li>
+                    <li>Scoring: Level 1 = 5 points, Level 2 = 10 points, ..., Level 20 = 100 points</li>
+                    <li>Total possible score: 1050 points</li>
+                    <li>840+ points = Excellent! The higher your score, the better your memory</li>
+                </ul>
+            </div>
+            <button id="start-btn" class="btn">Start Game</button>
+        </div>
         
-        <div class="progress-container" id="progress-container">
+        <!-- Game Screen -->
+        <div id="game-screen" class="screen">
+            <div class="game-content">
+                <div class="level-info">Level <span id="current-level">1</span> of 20</div>
+                <div id="number-display"></div>
+                <div id="timer">5</div>
+                
+                <div class="input-phase" id="input-phase">
+                    <div class="input-group">
+                        <input type="text" id="user-input" inputmode="numeric" pattern="[0-9]*" 
+                               placeholder="Enter the number you remember">
+                        <button id="submit-btn" class="btn">Submit Answer</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- End Screen -->
+        <div id="end-screen" class="screen">
+            <h2>Game Complete!</h2>
+            <div id="score-display">0</div>
+            <div id="result-message">Calculating your result...</div>
             
-        </div>
-        
-        <div class="game-area" id="game-area">
-            <div id="number-display"></div>
-            <input type="number" id="answer-input" placeholder="输入数字（例如：123）" maxlength="20" oninput="this.value=this.value.replace(/[^0-9]/g,'')" style="display: none;">
-            <button id="submit-btn" style="display: none;">提交答案</button>
-        </div>
-        
-        <div id="game-end">
-            <h2>游戏结束！</h2>
-            <p id="total-score">总分：0</p>
-            <div class="score-remark" id="score-remark"></div>
-            <button id="restart-btn" class="start-btn" style="margin-top:20px;">重新挑战</button>
+            <div class="score-breakdown">
+                <div class="score-row">
+                    <span class="score-label">Maximum Possible:</span>
+                    <span class="score-value">1050 points</span>
+                </div>
+                <div class="score-row">
+                    <span class="score-label">Excellent Threshold:</span>
+                    <span class="score-value">840+ points</span>
+                </div>
+                <div class="score-row">
+                    <span class="score-label">Your Performance:</span>
+                    <span id="performance-rating" class="score-value">...</span>
+                </div>
+            </div>
+            
+            <button id="restart-btn" class="btn">Play Again</button>
         </div>
     </div>
 
     <script>
-        // 游戏状态
-        const gameState = {
-            currentLevel: 1,
-            totalScore: 0,
-            gameStarted: false,
-            timer: null,
-            correctNumber: null
-        };
-
-        // DOM元素
-        const numberDisplay = document.getElementById('number-display');
-        const answerInput = document.getElementById('answer-input');
-        const submitBtn = document.getElementById('submit-btn');
+        // Game state variables
+        let currentLevel = 0;
+        let score = 0;
+        let gameActive = false;
+        let currentNumber = '';
+        let timerInterval;
+        let levelIndicators = [];
+        
+        // DOM Elements
+        const startScreen = document.getElementById('start-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const endScreen = document.getElementById('end-screen');
         const startBtn = document.getElementById('start-btn');
-        const gameEnd = document.getElementById('game-end');
-        const progressBar = document.getElementById('progress-container');
-        const totalScoreEl = document.getElementById('total-score');
-        const scoreRemarkEl = document.getElementById('score-remark');
+        const submitBtn = document.getElementById('submit-btn');
         const restartBtn = document.getElementById('restart-btn');
-
-        // 初始化进度条
-        function initProgress() {
-            progressBar.innerHTML = '';
+        const numberDisplay = document.getElementById('number-display');
+        const timerDisplay = document.getElementById('timer');
+        const userInput = document.getElementById('user-input');
+        const currentLevelDisplay = document.getElementById('current-level');
+        const inputPhase = document.getElementById('input-phase');
+        const scoreDisplay = document.getElementById('score-display');
+        const resultMessage = document.getElementById('result-message');
+        const performanceRating = document.getElementById('performance-rating');
+        const statusBar = document.getElementById('status-bar');
+        
+        // Initialize the status bar with 20 level indicators
+        function initStatusBar() {
+            statusBar.innerHTML = '';
+            levelIndicators = [];
+            
             for (let i = 1; i <= 20; i++) {
-                const cell = document.createElement('div');
-                cell.className = 'progress-cell';
-                cell.id = `cell-${i}`;
-                progressBar.appendChild(cell);
+                const indicator = document.createElement('div');
+                indicator.className = 'level-indicator';
+                indicator.textContent = i;
+                statusBar.appendChild(indicator);
+                levelIndicators.push(indicator);
             }
         }
-
-        // 生成指定位数的随机数字
-        function generateRandomNumber(length) {
-            const min = Math.pow(10, length - 1);
-            const max = Math.pow(10, length) - 1;
-            return Math.floor(Math.random() * (max - min + 1)) + min;
+        
+        // Start the game
+        function startGame() {
+            // Reset game state
+            currentLevel = 1;
+            score = 0;
+            gameActive = true;
+            
+            // Initialize status bar
+            initStatusBar();
+            updateStatusBar();
+            
+            // Hide start screen, show game screen
+            startScreen.classList.remove('active');
+            gameScreen.classList.add('active');
+            endScreen.classList.remove('active');
+            
+            // Start first level
+            startLevel(currentLevel);
         }
-
-        // 显示当前关卡的数字
-        function showNumber() {
-            gameState.correctNumber = generateRandomNumber(gameState.currentLevel);
-            numberDisplay.textContent = gameState.correctNumber;
-            numberDisplay.style.display = 'block';
-            answerInput.style.display = 'none';
-            submitBtn.style.display = 'none';
-            numberDisplay.style.opacity = '1';
-            answerInput.value = ''; // 清空上一关输入内容
+        
+        // Start a specific level
+        function startLevel(level) {
+            currentLevel = level;
+            currentLevelDisplay.textContent = level;
             
-            // 启动5秒倒计时（优化：显示数字+剩余时间）
+            // Generate random number with 'level' digits (including leading zeros)
+            currentNumber = '';
+            for (let i = 0; i < level; i++) {
+                currentNumber += Math.floor(Math.random() * 10);
+            }
+            
+            // Display the number
+            numberDisplay.textContent = currentNumber;
+            inputPhase.style.display = 'none';
+            
+            // Reset and start timer
+            timerDisplay.textContent = '5';
+            clearInterval(timerInterval);
+            
             let timeLeft = 5;
-            numberDisplay.textContent = `${gameState.correctNumber} （${timeLeft}s后隐藏）`;
-            
-            gameState.timer = setInterval(() => {
+            timerInterval = setInterval(() => {
                 timeLeft--;
-                if (timeLeft > 0) {
-                    numberDisplay.textContent = `${gameState.correctNumber} （${timeLeft}s后隐藏）`;
-                } else {
-                    clearInterval(gameState.timer);
-                    hideNumber();
+                timerDisplay.textContent = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    showInputPhase();
                 }
             }, 1000);
         }
-
-        // 隐藏数字，显示输入框
-        function hideNumber() {
-            numberDisplay.style.opacity = '0';
-            setTimeout(() => {
-                numberDisplay.style.display = 'none';
-                answerInput.style.display = 'block';
-                submitBtn.style.display = 'block';
-                answerInput.focus();
-            }, 500);
+        
+        // Show input phase after timer ends
+        function showInputPhase() {
+            numberDisplay.textContent = '';
+            timerDisplay.style.display = 'none';
+            inputPhase.style.display = 'block';
+            userInput.value = '';
+            userInput.focus();
         }
-
-        // 检查答案
+        
+        // Check the user's answer
         function checkAnswer() {
-            const userAnswer = answerInput.value.trim();
-            const isCorrect = userAnswer === gameState.correctNumber.toString();
+            const userAnswer = userInput.value.trim();
             
-            // 更新进度条
-            const progressCell = document.getElementById(`cell-${gameState.currentLevel}`);
-            if (isCorrect) {
-                progressCell.classList.add('correct');
-                progressCell.classList.remove('wrong');
-                // 更新分数
-                const levelScore = gameState.currentLevel * 5;
-                gameState.totalScore += levelScore;
-                totalScoreEl.textContent = `总分：${gameState.totalScore}`;
-            } else {
-                progressCell.classList.add('wrong');
-                progressCell.classList.remove('correct');
-            }
-            
-            // 如果是最后一关，结束游戏
-            if (gameState.currentLevel === 20) {
-                endGame();
+            // Validate input
+            if (!/^\d+$/.test(userAnswer)) {
+                alert('Please enter only digits!');
                 return;
             }
             
-            // 进入下一关
-            gameState.currentLevel++;
-            setTimeout(showNumber, 1500);
-        }
-
-        // 结束游戏
-        function endGame() {
-            // 显示结果
-            gameEnd.style.display = 'block';
+            // Check if answer is correct
+            const isCorrect = userAnswer === currentNumber;
             
-            // 显示评级
-            let remark = '';
-            if (gameState.totalScore >= 840) {
-                remark = '优秀';
-                scoreRemarkEl.className = 'score-remark remark-excellent';
-            } else if (gameState.totalScore >= 630) {
-                remark = '良好';
-                scoreRemarkEl.className = 'score-remark remark-good';
-            } else {
-                remark = '继续努力';
-                scoreRemarkEl.className = 'score-remark remark-poor';
+            // Update status bar
+            levelIndicators[currentLevel - 1].classList.add(isCorrect ? 'correct' : 'wrong');
+            
+            // Update score
+            if (isCorrect) {
+                score += currentLevel * 5;
             }
             
-            scoreRemarkEl.textContent = remark;
+            // Move to next level or end game
+            if (currentLevel < 20) {
+                currentLevel++;
+                setTimeout(() => {
+                    startLevel(currentLevel);
+                }, 500);
+            } else {
+                endGame();
+            }
         }
-
-        // 开始游戏
-        function startGame() {
-            if (gameState.gameStarted) return;
+        
+        // End the game
+        function endGame() {
+            gameActive = false;
+            gameScreen.classList.remove('active');
+            endScreen.classList.add('active');
             
-            gameState.gameStarted = true;
-            gameState.currentLevel = 1;
-            gameState.totalScore = 0;
-            gameState.correctNumber = null;
+            // Display final score
+            scoreDisplay.textContent = score;
             
-            // 隐藏开始按钮
-            startBtn.style.display = 'none';
+            // Determine performance message
+            let message = '';
+            let rating = '';
             
-            // 初始化进度条
-            initProgress();
+            if (score >= 840) {
+                message = 'Excellent!';
+                rating = 'Outstanding Memory';
+                resultMessage.classList.add('excellent-badge');
+            } else if (score >= 700) {
+                message = 'Very Good!';
+                rating = 'Strong Memory';
+            } else if (score >= 500) {
+                message = 'Good!';
+                rating = 'Solid Memory';
+            } else {
+                message = 'Keep Practicing!';
+                rating = 'Developing Memory';
+            }
             
-            // 显示第一关
-            showNumber();
+            resultMessage.textContent = message;
+            performanceRating.textContent = rating;
         }
-
-        // 重新开始游戏
-        function restartGame() {
-            gameEnd.style.display = 'none';
-            startBtn.style.display = 'block';
-            gameState.gameStarted = false;
-            clearInterval(gameState.timer);
+        
+        // Update the status bar to show current level
+        function updateStatusBar() {
+            levelIndicators.forEach((indicator, index) => {
+                indicator.classList.remove('current');
+                if (index === currentLevel - 1) {
+                    indicator.classList.add('current');
+                }
+            });
         }
-
-        // 事件监听
+        
+        // Event Listeners
         startBtn.addEventListener('click', startGame);
+        
         submitBtn.addEventListener('click', checkAnswer);
-        answerInput.addEventListener('keypress', (e) => {
+        
+        userInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 checkAnswer();
             }
         });
-        restartBtn.addEventListener('click', restartGame);
-
-        // 初始化
-        initProgress();
+        
+        restartBtn.addEventListener('click', startGame);
+        
+        // Initialize the game
+        initStatusBar();
     </script>
 </body>
 </html>
