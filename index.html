@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Memory Test - A challenging online memory game to improve your cognitive skills. Test your memory with 20 levels of increasing difficulty.">
+    <meta name="keywords" content="memory test, memory challenge, cognitive game, brain training, memory improvement, online game">
+    <meta name="author" content="Memory Test Team">
+    <title>Memory Test - Challenge Your Cognitive Skills</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a3a6c, #2c5282);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding-top: 80px;
+            position: relative;
+        }
+
+        /* Header styles */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            padding: 15px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .logo {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #4a90e2;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-icon {
+            margin-right: 10px;
+            font-size: 2.5rem;
+        }
+
+        .start-btn {
+            background: linear-gradient(to bottom, #4a90e2, #2a75bb);
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 12px rgba(74, 144, 226, 0.4);
+        }
+
+        .start-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(74, 144, 226, 0.6);
+        }
+
+        .start-btn:active {
+            transform: translateY(0);
+            background: linear-gradient(to bottom, #3a7bc8, #1a65a8);
+        }
+
+        /* Main content sections */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        section {
+            padding: 80px 0;
+            scroll-margin-top: 80px;
+        }
+
+        h1, h2, h3 {
+            color: #2c5282;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 40px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        h2:after {
+            content: '';
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(to right, #4a90e2, #2a75bb);
+            border-radius: 2px;
+        }
+
+        h3 {
+            font-size: 1.8rem;
+            color: #4a90e2;
+            margin-bottom: 15px;
+        }
+
+        .intro-text {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto 40px;
+            color: #4a5568;
+            text-align: center;
+        }
+
+        .rules-container, .scoring-container, .play-guide-container {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 35px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 40px;
+        }
+
+        .rules-list, .scoring-list, .play-steps {
+            list-style-type: none;
+        }
+
+        .rules-list li, .scoring-list li, .play-steps li {
+            padding: 15px 0;
+            border-bottom: 1px dashed #e2e8f0;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .rules-list li:before, .scoring-list li:before, .play-steps li:before {
+            content: "✓";
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background: #4a90e2;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            margin-right: 15px;
+            font-weight: bold;
+        }
+
+        .game-frame-container {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            margin: 40px 0;
+        }
+
+        .game-frame {
+            width: 100%;
+            height: 800px;
+            border: none;
+            border-radius: 10px;
+            background: #f0f4f8;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 30px 0;
+            color: #4a5568;
+            font-size: 1.1rem;
+        }
+
+        /* Responsive design */
+        @media (max-width: 992px) {
+            h1 {
+                font-size: 2.8rem;
+            }
+            
+            h2 {
+                font-size: 2.2rem;
+            }
+            
+            .game-frame {
+                height: 600px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                padding: 12px 5%;
+            }
+            
+            h1 {
+                font-size: 2.3rem;
+            }
+            
+            h2 {
+                font-size: 1.9rem;
+            }
+            
+            .logo {
+                font-size: 1.8rem;
+            }
+            
+            .intro-text {
+                font-size: 1.1rem;
+            }
+            
+            .game-frame {
+                height: 500px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            h2 {
+                font-size: 1.7rem;
+            }
+            
+            .start-btn {
+                padding: 10px 20px;
+                font-size: 1rem;
+            }
+            
+            .game-frame {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <span class="logo-icon">🧠</span>
+            Memory Test
+        </div>
+        <button class="start-btn" id="startChallengeBtn">Start Challenge</button>
+    </header>
+
+    <div class="container">
+        <section id="intro">
+            <h1>Memory Test</h1>
+            <p class="intro-text">
+                Challenge your cognitive abilities with our scientifically designed memory game. 
+                Test your short-term memory with 20 progressive levels, each increasing in difficulty. 
+                Improve your focus, concentration, and recall skills in a fun and engaging way.
+            </p>
+        </section>
+
+        <section id="rules">
+            <h2>Game Rules</h2>
+            <div class="rules-container">
+                <ul class="rules-list">
+                    <li>20 progressive levels with increasing number of digits</li>
+                    <li>Each level shows a random number for 5 seconds</li>
+                    <li>After 5 seconds, input the number you saw</li>
+                    <li>Correct answers earn points based on the level</li>
+                    <li>Each level has a 5-second time limit</li>
+                    <li>Progress through all 20 levels to complete the challenge</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="scoring">
+            <h2>Scoring System</h2>
+            <div class="scoring-container">
+                <ul class="scoring-list">
+                    <li>Level 1: 5 points (1-digit number)</li>
+                    <li>Level 2: 10 points (2-digit number)</li>
+                    <li>Level 3: 15 points (3-digit number)</li>
+                    <li>...</li>
+                    <li>Level 20: 100 points (20-digit number)</li>
+                    <li>Total possible score: 1050 points</li>
+                    <li>Score categories:
+                        <ul style="margin-top: 10px; margin-left: 20px;">
+                            <li>840+ points: <strong>Excellent</strong></li>
+                            <li>630-839 points: <strong>Good</strong></li>
+                            <li>Below 630 points: <strong>Keep Practicing</strong></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="play-guide">
+            <h2>How to Play</h2>
+            <div class="play-guide-container">
+                <ol class="play-steps">
+                    <li>Click the "Start Challenge" button to begin</li>
+                    <li>Watch the number displayed for exactly 5 seconds</li>
+                    <li>After the number disappears, enter it in the input field</li>
+                    <li>Click "Submit" to check your answer</li>
+                    <li>Progress through all 20 levels</li>
+                    <li>See your final score and performance category</li>
+                    <li>Challenge yourself to beat your previous score!</li>
+                </ol>
+            </div>
+        </section>
+
+        <section id="game">
+            <h2>Play the Game</h2>
+            <div class="game-frame-container">
+                <iframe class="game-frame" src="https://memory.motorcycles/game.html" id="gameFrame" 
+                        title="Memory Test Game"></iframe>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <p>Memory Test &copy; 2023 - Improve Your Cognitive Skills Through Play</p>
+        <p>Designed with ❤️ for memory enthusiasts worldwide</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Smooth scrolling for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+
+            // Start challenge button scrolls to game section
+            document.getElementById('startChallengeBtn').addEventListener('click', function() {
+                document.getElementById('game').scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+
+            // Handle iframe loading
+            const gameFrame = document.getElementById('gameFrame');
+            gameFrame.addEventListener('load', function() {
+                console.log('Game iframe loaded successfully');
+            });
+        });
+    </script>
+</body>
+</html>
