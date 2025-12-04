@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>记忆力挑战</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+
+        body {
+            height: 100vh;
+            width: 100vw;
+            background: linear-gradient(135deg, #1a3a6c, #2c5282);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            overflow: hidden;
+            padding: 20px;
+            position: relative;
+        }
+
+        /* 全屏适配效果 */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" opacity="0.1"><rect width="100" height="100" fill="white"/></svg>');
+            background-size: 50px 50px;
+            z-index: -2;
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            width: 100%;
+            max-width: 800px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            color: #4a90e2;
+            letter-spacing: 1px;
+        }
+
+        .rules {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            line-height: 1.6;
+            font-size: 1.1rem;
+            color: #e0e0ff;
+        }
+
+        .rules p {
+            margin-bottom: 12px;
+        }
+
+        .rules strong {
+            color: #4a90e2;
+        }
+
+        .start-btn {
+            background: linear-gradient(to bottom, #4a90e2, #2a75bb);
+            color: white;
+            border: none;
+            padding: 16px 40px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            letter-spacing: 1px;
+            box-shadow: 0 5px 15px rgba(74, 144, 226, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .start-btn:after {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.2), transparent);
+            transform: rotate(30deg);
+            z-index: -1;
+            transition: transform 0.5s;
+        }
+
+        .start-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(74, 144, 226, 0.6);
+        }
+
+        .start-btn:active {
+            transform: translateY(0);
+            background: linear-gradient(to bottom, #3a7bc8, #1a65a8);
+        }
+
+        .progress-container {
+            margin: 25px 0;
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .progress-cell {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            background-color: #555;
+            transition: all 0.4s ease;
+            opacity: 0.7;
+        }
+
+        .progress-cell.correct {
+            background-color: #4caf50;
+            opacity: 1;
+        }
+
+        .progress-cell.wrong {
+            background-color: #f44336;
+            opacity: 1;
+        }
+
+        .game-area {
+            margin: 30px 0;
+        }
+
+        #number-display {
+            font-size: 3.5rem;
+            font-weight: bold;
+            margin: 20px 0;
+            color: #4a90e2;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            letter-spacing: 5px;
+            min-height: 120px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #answer-input {
+            padding: 12px 20px;
+            font-size: 1.4rem;
+            width: 100%;
+            max-width: 350px;
+            border: 2px solid #4a90e2;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 15px;
+            color: #2c3e50;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        #answer-input:focus {
+            outline: none;
+            border-color: #2a75bb;
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.3);
+        }
+
+        #submit-btn {
+            background: linear-gradient(to bottom, #4a90e2, #2a75bb);
+            color: white;
+            border: none;
+            padding: 14px 35px;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(74, 144, 226, 0.4);
+        }
+
+        #submit-btn:active {
+            transform: scale(0.95);
+            background: linear-gradient(to bottom, #3a7bc8, #1a65a8);
+        }
+
+        #game-end {
+            display: none;
+            margin-top: 40px;
+        }
+
+        #game-end h2 {
+            font-size: 2.2rem;
+            margin-bottom: 15px;
+            color: #4a90e2;
+        }
+
+        #total-score {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 15px 0;
+            color: #e0e0ff;
+        }
+
+        .score-remark {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .remark-good {
+            color: #4caf50;
+            background: rgba(74, 144, 226, 0.1);
+        }
+
+        .remark-excellent {
+            color: #4caf50;
+            background: rgba(74, 144, 226, 0.1);
+        }
+
+        .remark-poor {
+            color: #f44336;
+            background: rgba(255, 100, 100, 0.1);
+        }
+
+        .timer {
+            font-size: 1.5rem;
+            color: #4a90e2;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .rules {
+                font-size: 1rem;
+            }
+            
+            #number-display {
+                font-size: 2.5rem;
+            }
+            
+            #answer-input {
+                font-size: 1.2rem;
+                padding: 10px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>记忆力挑战</h1>
+        
+        <div class="rules">
+            <p>游戏规则：<strong>每关显示一组数字，限时5秒</strong>。数字位数从1位到20位递增。</p>
+            <p>5秒后输入数字，答对得相应分数：<strong>第1关5分，第2关10分，...，第20关100分</strong>。</p>
+            <p>总分1050分，840分及以上标注“优秀”，630-839分“良好”，低于630分“继续努力”。</p>
+        </div>
+        
+        <button id="start-btn" class="start-btn">开始游戏</button>
+        
+        <div class="progress-container" id="progress-container">
+            <!-- 20个进度格子将由JS动态生成 -->
+        </div>
+        
+        <div class="game-area" id="game-area">
+            <div id="number-display"></div>
+            <input type="text" id="answer-input" placeholder="输入数字（例如：123）" maxlength="20" style="display: none;">
+            <button id="submit-btn" style="display: none;">提交答案</button>
+        </div>
+        
+        <div id="game-end">
+            <h2>游戏结束！</h2>
+            <p id="total-score">总分：0</p>
+            <div class="score-remark" id="score-remark"></div>
+        </div>
+    </div>
+
+    <script>
+        // 游戏状态
+        const gameState = {
+            currentLevel: 1,
+            totalScore: 0,
+            gameStarted: false,
+            timer: null,
+            correctNumber: null
+        };
+
+        // DOM元素
+        const numberDisplay = document.getElementById('number-display');
+        const answerInput = document.getElementById('answer-input');
+        const submitBtn = document.getElementById('submit-btn');
+        const startBtn = document.getElementById('start-btn');
+        const gameEnd = document.getElementById('game-end');
+        const progressBar = document.getElementById('progress-container');
+        const totalScoreEl = document.getElementById('total-score');
+        const scoreRemarkEl = document.getElementById('score-remark');
+
+        // 初始化进度条
+        function initProgress() {
+            progressBar.innerHTML = '';
+            for (let i = 1; i <= 20; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'progress-cell';
+                cell.id = `cell-${i}`;
+                progressBar.appendChild(cell);
+            }
+        }
+
+        // 生成指定位数的随机数字
+        function generateRandomNumber(length) {
+            const min = Math.pow(10, length - 1);
+            const max = Math.pow(10, length) - 1;
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        // 显示当前关卡的数字
+        function showNumber() {
+            gameState.correctNumber = generateRandomNumber(gameState.currentLevel);
+            numberDisplay.textContent = gameState.correctNumber;
+            numberDisplay.style.display = 'block';
+            answerInput.style.display = 'none';
+            submitBtn.style.display = 'none';
+            numberDisplay.style.opacity = '1';
+            
+            // 启动5秒倒计时
+            let timeLeft = 5;
+            numberDisplay.textContent = `显示中... ${timeLeft}s`;
+            
+            gameState.timer = setInterval(() => {
+                timeLeft--;
+                if (timeLeft > 0) {
+                    numberDisplay.textContent = `显示中... ${timeLeft}s`;
+                } else {
+                    clearInterval(gameState.timer);
+                    hideNumber();
+                }
+            }, 1000);
+        }
+
+        // 隐藏数字，显示输入框
+        function hideNumber() {
+            numberDisplay.style.opacity = '0';
+            setTimeout(() => {
+                numberDisplay.style.display = 'none';
+                answerInput.style.display = 'block';
+                submitBtn.style.display = 'block';
+                answerInput.focus();
+            }, 500);
+        }
+
+        // 检查答案
+        function checkAnswer() {
+            const userAnswer = answerInput.value.trim();
+            const isCorrect = userAnswer === gameState.correctNumber.toString();
+            
+            // 更新进度条
+            const progressCell = document.getElementById(`cell-${gameState.currentLevel}`);
+            if (isCorrect) {
+                progressCell.classList.add('correct');
+                progressCell.classList.remove('wrong');
+                // 更新分数
+                const levelScore = gameState.currentLevel * 5;
+                gameState.totalScore += levelScore;
+                totalScoreEl.textContent = `总分：${gameState.totalScore}`;
+            } else {
+                progressCell.classList.add('wrong');
+                progressCell.classList.remove('correct');
+            }
+            
+            // 如果是最后一关，结束游戏
+            if (gameState.currentLevel === 20) {
+                endGame();
+                return;
+            }
+            
+            // 进入下一关
+            gameState.currentLevel++;
+            setTimeout(showNumber, 1500);
+        }
+
+        // 结束游戏
+        function endGame() {
+            // 显示结果
+            gameEnd.style.display = 'block';
+            
+            // 显示评级
+            let remark = '';
+            if (gameState.totalScore >= 840) {
+                remark = '优秀';
+                scoreRemarkEl.className = 'score-remark remark-excellent';
+            } else if (gameState.totalScore >= 630) {
+                remark = '良好';
+                scoreRemarkEl.className = 'score-remark remark-good';
+            } else {
+                remark = '继续努力';
+                scoreRemarkEl.className = 'score-remark remark-poor';
+            }
+            
+            scoreRemarkEl.textContent = remark;
+        }
+
+        // 开始游戏
+        function startGame() {
+            if (gameState.gameStarted) return;
+            
+            gameState.gameStarted = true;
+            gameState.currentLevel = 1;
+            gameState.totalScore = 0;
+            gameState.correctNumber = null;
+            
+            // 隐藏开始按钮
+            startBtn.style.display = 'none';
+            
+            // 初始化进度条
+            initProgress();
+            
+            // 显示第一关
+            showNumber();
+        }
+
+        // 事件监听
+        startBtn.addEventListener('click', startGame);
+        submitBtn.addEventListener('click', checkAnswer);
+        answerInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                checkAnswer();
+            }
+        });
+
+        // 初始化
+        initProgress();
+    </script>
+</body>
+</html>
